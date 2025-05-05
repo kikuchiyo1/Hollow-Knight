@@ -15,8 +15,6 @@ public class PlayerAnimation : MonoBehaviour
     private bool isFall;
     private bool isJump;
     private bool isJumpTwo;
-    private bool isAttackOne;
-    private bool isAttackTwo;
 
     private void Awake()
     {

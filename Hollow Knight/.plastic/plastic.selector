@@ -1,0 +1,4 @@
+repository "Hollow Knight@tj_wechat_os_qy01xe2qdrv9_ogvwjphqjjqg@cloud.cn"
+  path "/"
+    br "/main"
+    co "/main"

@@ -11,6 +11,7 @@ public class PlayerAudioManager : MonoBehaviour
     public AudioSource FALLSource;
     public AudioSource LANDSource;
     public AudioSource ATTACKSource;
+    public AudioSource DASHSource;
 
     public void Run()
     {
@@ -69,6 +70,16 @@ public class PlayerAudioManager : MonoBehaviour
     public void StopFalling()
     {
         FALLSource.Stop();
+    }
+
+    public void Dash()
+    {
+        DASHSource.Play();
+    }
+
+    public void StopDash()
+    {
+        DASHSource.Stop();
     }
 
 }

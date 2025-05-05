@@ -55,7 +55,7 @@ AnimationClip:
     - time: 0.05882353
       value: {fileID: 21300000, guid: f2d718d0aa6546745b78be20631e9b01, type: 3}
     - time: 0.11764706
-      value: {fileID: 21300000, guid: b8aefefcb4d913543841dc28bf94bc73, type: 3}
+      value: {fileID: 21300000, guid: c9c3d10c6c67bab4294f264bba980af3, type: 3}
     - time: 0.1764706
       value: {fileID: 21300000, guid: c9c3d10c6c67bab4294f264bba980af3, type: 3}
     - time: 0.23529412
@@ -93,7 +93,7 @@ AnimationClip:
     pptrCurveMapping:
     - {fileID: 21300000, guid: c7938469727d8d04b9a859eff0c79593, type: 3}
     - {fileID: 21300000, guid: f2d718d0aa6546745b78be20631e9b01, type: 3}
-    - {fileID: 21300000, guid: b8aefefcb4d913543841dc28bf94bc73, type: 3}
+    - {fileID: 21300000, guid: c9c3d10c6c67bab4294f264bba980af3, type: 3}
     - {fileID: 21300000, guid: c9c3d10c6c67bab4294f264bba980af3, type: 3}
     - {fileID: 21300000, guid: 258ef44e550a8d4498ef066b67ae766f, type: 3}
   m_AnimationClipSettings:
@@ -165,7 +165,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.05882353
+  - time: 0.1764706
     functionName: StopAttack
     data: 
     objectReferenceParameter: {fileID: 0}

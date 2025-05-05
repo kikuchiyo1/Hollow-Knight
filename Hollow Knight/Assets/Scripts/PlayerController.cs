@@ -32,6 +32,10 @@ public class PlayerController : MonoBehaviour
     public float fallForce = 0.1f;
     public float fallAcceleration = 0.05f;
 
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 0.5f;
+    public float dashForce = 3f;
+
     public float jumpTime = 0.0f;
 
     public float jumpCount = 2f;
@@ -51,6 +55,8 @@ public class PlayerController : MonoBehaviour
 
     public bool isFall = false;
 
+    public bool isDash = false;
+
     public bool isJump;
     public bool isJumpTwo;
 
@@ -60,6 +66,8 @@ public class PlayerController : MonoBehaviour
 
     public bool isRight = true;
 
+    private bool canDash = true;
+
     private void Awake()
     {
         inputControl = new PlayerInputSystem();
@@ -67,6 +75,8 @@ public class PlayerController : MonoBehaviour
         inputControl.Gameplayer.Jump.started += Jump;
 
         inputControl.Gameplayer.Attack.started += Attack;
+
+        inputControl.Gameplayer.Dash.started += Dash;
 
         rb = GetComponent<Rigidbody2D>();
 
@@ -100,7 +110,6 @@ public class PlayerController : MonoBehaviour
 
         if (jumpCount<1 && isOnground) jumpCount = 1;
 
-
         speedY = rb.velocity.y;
     }
 
@@ -114,26 +123,69 @@ public class PlayerController : MonoBehaviour
 
     public void Move()
     {
-        rb.velocity = new Vector2(inputDirection.x * speed, rb.velocity.y);
+        if (!isDash)
+        {
+            rb.velocity = new Vector2(inputDirection.x * speed, rb.velocity.y);
 
-        //角色翻转
-        if (inputDirection.x > 0) sr.flipX = true;
-        if (inputDirection.x < 0) sr.flipX = false;
+            //角色翻转
+            if (inputDirection.x > 0) sr.flipX = true;
+            if (inputDirection.x < 0) sr.flipX = false;
 
-        //检测朝向
-        if (Keyboard.current.dKey.isPressed) isRight = true;
-        if (Keyboard.current.aKey.isPressed) isRight = false;
+            //检测朝向
+            if (Keyboard.current.dKey.isPressed) isRight = true;
+            if (Keyboard.current.aKey.isPressed) isRight = false;
+        }
+    }
+
+    public void Dash(InputAction.CallbackContext context)
+    {
+        if (!isDash && canDash)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        // 准备阶段
+        isDash = true;
+        canDash = false;
+        anim.SetBool("isDash", true);
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0; // 取消重力影响
+
+        // 确定方向
+        float dashDirection = (inputDirection.x != 0) ?
+            Mathf.Sign(inputDirection.x) :
+            (isRight ? 1 : -1);
+
+        // 应用冲刺速度
+        rb.velocity = new Vector2(dashForce*dashDirection, 0);
+
+        // 锁定输入
+        inputControl.Gameplayer.Move.Disable();
+
+        // 保持冲刺状态
+        yield return new WaitForSeconds(dashDuration);
+
+        // 恢复阶段
+        inputControl.Gameplayer.Move.Enable();
+        rb.gravityScale = originalGravity;
+        anim.SetBool("isDash", false);
+        isDash = false;
+
+        // 冷却计时
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
     }
 
     private void Jump(InputAction.CallbackContext context)
     {
        //Debug.Log("Jump");
 
-
-        if (jumpCount > 0)
+        if (jumpCount > 0&&!isDash)
         {
             rb.velocity = new Vector2(0, 0);
-
 
             if (isOnground)
             {
@@ -156,8 +208,6 @@ public class PlayerController : MonoBehaviour
                 rb.AddForce(new Vector2(0, jumpTwoforce), ForceMode2D.Impulse);
 
             }
-
-
             rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
         }
 
@@ -189,66 +239,74 @@ public class PlayerController : MonoBehaviour
             isJump = false;
             isJumpTwo = false;
         }
-
-
     }
 
     //平a
     private void Attack(InputAction.CallbackContext context)
     {
-        if (!isAttack && Keyboard.current.wKey.isPressed) anim.SetTrigger("isAttackUp");
-        else if (!isAttack && !isOnground && Keyboard.current.sKey.isPressed) anim.SetTrigger("isAttackDown");
-        else
+        if(!isDash)
         {
-            if (!isAttack && isRight)
+            if (!isAttack && Keyboard.current.wKey.isPressed) anim.SetTrigger("isAttackUp");
+            else if (!isAttack && !isOnground && Keyboard.current.sKey.isPressed) anim.SetTrigger("isAttackDown");
+            else
             {
-                if (attackCount == 1)
+                if (!isAttack && isRight)
                 {
-                    isAttackOne = true;
-                    isAttackTwo = false;
+                    if (attackCount == 1)
+                    {
+                        isAttackOne = true;
+                        isAttackTwo = false;
 
-                    anim.SetTrigger("isAttackOneRight");
+                        anim.SetTrigger("isAttackOneRight");
 
-                    attackCount++;
+                        attackCount++;
+                    }
+                    else
+                    {
+                        isAttackTwo = true;
+                        isAttackOne = false;
+
+                        anim.SetTrigger("isAttackTwoRight");
+
+                        attackCount = 1;
+                    }
                 }
-                else
+
+                if (!isAttack && !isRight)
                 {
-                    isAttackTwo = true;
-                    isAttackOne = false;
+                    if (attackCount == 1)
+                    {
+                        isAttackOne = true;
+                        isAttackTwo = false;
 
-                    anim.SetTrigger("isAttackTwoRight");
+                        anim.SetTrigger("isAttackOneLeft");
 
-                    attackCount = 1;
-                }
-            }
+                        attackCount++;
+                    }
+                    else
+                    {
+                        isAttackTwo = true;
+                        isAttackOne = false;
 
-            if (!isAttack && !isRight)
-            {
-                if (attackCount == 1)
-                {
-                    isAttackOne = true;
-                    isAttackTwo = false;
+                        anim.SetTrigger("isAttackTwoLeft");
 
-                    anim.SetTrigger("isAttackOneLeft");
-
-                    attackCount++;
-                }
-                else
-                {
-                    isAttackTwo = true;
-                    isAttackOne = false;
-
-                    anim.SetTrigger("isAttackTwoLeft");
-
-                    attackCount = 1;
+                        attackCount = 1;
+                    }
                 }
             }
         }
+        
        
     }
-    public void AttackTest()
+
+    public void SetDashFalse()
     {
-        isAttack = false;
+        isDash = false;
+    }
+
+    public void SetDashTrue()
+    {
+        isDash = true;
     }
 
     public void SetAttactTrue()

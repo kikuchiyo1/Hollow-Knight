@@ -165,7 +165,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.05882353
+  - time: 0.1764706
     functionName: StopAttack
     data: 
     objectReferenceParameter: {fileID: 0}
